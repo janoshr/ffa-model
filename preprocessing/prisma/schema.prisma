@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../feverfriend.db"
+}
+
+model User {
+  id                    String  @id
+  participateInResearch Boolean
+  lang                  String
+  email                 String?
+  // intially in object called `unit` schema:
+  // { height: string; temperature: string; weight: string }
+  // values can be 'imperial' or 'metric'
+  // available since around 2022 May
+  unitHeight            String?
+  unitWeight            String?
+  unitTemp              String?
+  country               String? // 2 char country code
+
+  Patient Patient[]
+}
+
+model MeasurementEvent {
+  id        String @id
+  illnessId String // ID
+  patientId String
+
+  deviceToken String?
+
+  antibiotics                            String?
+  antibioticsHowManyTimes                String?
+  antibioticsHowManyTimesState           String?
+  antibioticsHowMuch                     String?
+  antibioticsState                       String?
+  antibioticsWhat                        String?
+  antipyreticMedication                  String?
+  antipyreticMedicationHowManyTimesState String?
+  antipyreticMedicationHowManyTimes      String?
+  antipyreticMedicationHowMuch           String?
+  antipyreticMedicationState             String?
+  antipyreticMedicationWhat              String? //list
+  antipyreticMedicationWhy               String?
+  appVersion                             String?
+  awareness                              String?
+  awarenessState                         String?
+  bulgingFontanelleMax18MOld             String? // ? old
+  bulgingFontanelleMax18MOldState        String? // ? old
+  caretakerState                         String?
+  chronicDisease                         String?
+  crying                                 String?
+  cryingState                            String?
+  dateOfBirth                            DateTime?
+  diarrhea                               String?
+  diarrheaState                          String?
+  drinking                               String?
+  drinkingState                          String?
+  dyspnea                                String?
+  dyspneaState                           String?
+  eventState                             String?
+  exoticTripInTheLast12Months            String?
+  exoticTripInTheLast12MonthsState       String?
+  fcmToken                               String?
+  febrileSeizure                         String?
+  febrileSeizureState                    String?
+  feverDuration                          String?
+  feverDurationState                     String?
+  feverMeasurementLocation               String?
+  feverMeasurementLocationState          String?
+  glassTest                              String?
+  glassTestState                         String?
+  lang                                   String?
+  lastTimeEating                         String?
+  lastTimeEatingState                    String?
+  lastUrination                          String?
+  lastUrinationState                     String?
+  notificationIllnessReviewTask          String?
+  notificationTask                       String?
+  pain                                   String? // list
+  painState                              String?
+  painfulUrination                       String?
+  painfulUrinationState                  String?
+  parentConfident                        String?
+  parentConfidentState                   String?
+  parentFeel                             String?
+  parentFeelState                        String?
+  parentThink                            String?
+  parentThinkState                       String?
+  patientName                            String?
+  patientState                           String?
+  progress                               String?
+  progressPercent                        String?
+  pulse                                  String?
+  pulseState                             String?
+  rash                                   String?
+  rashState                              String?
+  respiratoryRate                        String?
+  respiratoryRateState                   String?
+  skinColor                              String?
+  skinColorState                         String?
+  skinTurgor                             String?
+  skinTurgorState                        String?
+  smellyUrine                            String?
+  smellyUrineState                       String?
+  tearsWhenCrying                        String?
+  tearsWhenCryingState                   String?
+  temperature                            String?
+  temperatureAdjusted                    Decimal? // ? old not seen yet
+  temperatureOriginal                    String? // * new
+  temperatureSate                        String? // ! misspelled  kept to support old versions
+  temperatureState                       String?
+  thermometerUsed                        String?
+  thermometerUsedState                   String?
+  timestampOfCreation                    DateTime?
+  timestampOfCreationOnDevice            DateTime?
+  tongue                                 String?
+  tongueState                            String?
+  vaccinationsWithIn14days               String?
+  vaccinationsWithIn14daysState          String?
+  vaccinationsHowManyHoursAgo            String? // ? old
+  vaccinationsHowManyHoursAgoState       String? // ? old
+  vaccinationsUsedVaccination            String? // ? old
+  vomit                                  String?
+  vomitState                             String?
+  wheezing                               String?
+  wheezingState                          String?
+  wryNeck                                String?
+  wryNeckState                           String?
+
+  Review  IllnessReview? @relation(fields: [illnessId], references: [id])
+  Patient Patient        @relation(fields: [patientId], references: [id])
+}
+
+model IllnessReview {
+  id                          String    @id
+  patientId                   String
+  illnessState                String?
+  patientIllnessState         String?
+  timestampOfClosure          DateTime?
+  gotToDoctorReview           String?
+  timestampOfCreation         DateTime?
+  antipyreticMedicationReview String?
+  antibioticsMedicationReview String?
+  gotToDoctorHowReview        String?
+  createdAt                   DateTime?
+  updatedAt                   DateTime?
+
+  MeasurementEvent MeasurementEvent[]
+  Patient          Patient            @relation(fields: [patientId], references: [id])
+}
+
+model Patient {
+  id                       String    @id
+  userId                   String
+  name                     String
+  weight                   String? // NOTE: possibly number
+  weightOriginal           String?
+  height                   String? // NOTE: possibly number
+  heightOriginal           String?
+  gender                   String?
+  dateOfBirth              DateTime?
+  siblings                 String? // NOTE: possibly number
+  eventsNo                 Int?
+  timestampOfCreation      DateTime?
+  timestampOfUpdate        DateTime?
+  chronicDiseases          String?
+  chronicDisease           String?
+  ableToProvide            String?
+  caretakerFeel            String?
+  usedDrug                 String?
+  usedDrugOccasion         String?
+  usedDrugAntipyreticAgent String? // possibly list
+  usedAntibiotics          String?
+  usedAntibioticsOccasion  String?
+  usedAntibioticsName      String?
+  gotToDoctor              String?
+  gotToDoctorOnPhone       String?
+  gotToDoctorInAmbulance   String?
+  gotToDoctorInHospital    String?
+  gotToDoctorInSurgery     String?
+
+  User             User               @relation(fields: [userId], references: [id])
+  IllnessReview    IllnessReview[]
+  MeasurementEvent MeasurementEvent[]
+}
