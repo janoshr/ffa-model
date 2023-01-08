@@ -23,3 +23,11 @@
 - `.*State` variables will be excluded for the ML model
 - `null` values for `pulse` and `repiratoryRate` will be allowed and filled with something
 
+## 2023.01.08 State updates
+
+- Node package recalculates `pulseState` and `respiratoryRateState` and `patientState` variables and updates the database entries
+- The package also calculates the age of the patient at the time of the the event creation and upates all measurementEvents by adding `ageInMonths` field.
+- A `modifiedList.csv` file is also created that includes all the old state variables as well as the new ones. It also has the measurementEvent ID.
+- Data analysis file added and separated from preprocess file
+- Data analysis provides some plots about the changes to the algorithm reflected in the states of each variables
+- More fine tuning is required for the algorithm
