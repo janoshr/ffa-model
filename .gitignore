@@ -2,3 +2,6 @@
 .ipynb_checkpoints
 *.db
 *.csv
+
+# archive
+archive

@@ -1,12 +1,9 @@
 import { getPatientState, getPulseState, getVentilationState } from './lib/core';
 import { PrismaClient } from '@prisma/client';
-import { getAge } from './lib/util';
 import fs from 'fs';
 import { stringify } from 'csv';
 
 const prisma = new PrismaClient();
-
-const SET_AGE_IN_MONTHS = false;
 
 type IList = (string | number | null)[];
 
@@ -25,13 +22,12 @@ async function main() {
     };
   } = {};
 
-  const newEvents = events.map((event) => {
+  events.map((event) => {
     // get and set calculated age for measurements
-    const ageInMonths = getAge(event['dateOfBirth'], event['timestampOfCreation'], 'month');
-    event['ageInMonths'] = ageInMonths;
+    const ageInMonths = event['ageInMonths'];
 
     let modified = false;
-    const temperature = Number(event['temperatureAdjusted'] ?? event['temperature'])
+    const temperature = Number(event['temperatureAdjusted'] ?? event['temperature']);
     // calculate new respiratoryRateState and update if needed
     if (event['respiratoryRate'] && ageInMonths !== null) {
       const newRespiratoryRateState = getVentilationState(
@@ -81,7 +77,7 @@ async function main() {
       // calculate new patientState
       const newPatientState = (getPatientState(event as any) as any)['patientState'];
       modifiedMs[event['id']]['ageInMonths'] = ageInMonths;
-      modifiedMs[event['id']]['fever'] = Boolean(temperature && temperature >= 38.5)
+      modifiedMs[event['id']]['fever'] = Boolean(temperature && temperature >= 38.5);
 
       if (event['patientState'] !== newPatientState) {
         // if patientState differs store original and new data
@@ -136,36 +132,21 @@ async function main() {
     stringifyer.pipe(writeStream);
   }
 
-  // Update all rows in the database
-  // all rows need to be updated because ageInMonths is being set
-  if (SET_AGE_IN_MONTHS) {
-    await prisma.$transaction(
-      newEvents.map((event) => {
-        return prisma.measurementEvent.update({
-          data: event,
-          where: { id: event['id'] },
-        });
-      })
-    );
-    console.log('All measurements updated for ageInMonths');
-    console.log('Number of events updated for state', modifiedList.length);
-  } else {
-    await prisma.$transaction(
-      modifiedList.map(([id, modEv]) => {
-        return prisma.measurementEvent.update({
-          where: { id: id },
-          data: {
-            patientState: modEv['patientState'] ? (modEv['patientState'][1] as string) : undefined,
-            pulseState: modEv['pulse'] ? (modEv['pulse'][2] as string) : undefined,
-            respiratoryRateState: modEv['respiratoryRate']
-              ? (modEv['respiratoryRate'][2] as string)
-              : undefined,
-          },
-        });
-      })
-    );
-    console.log('Number of events updated for state', modifiedList.length);
-  }
+  await prisma.$transaction(
+    modifiedList.map(([id, modEv]) => {
+      return prisma.measurementEvent.update({
+        where: { id: id },
+        data: {
+          patientState: modEv['patientState'] ? (modEv['patientState'][1] as string) : undefined,
+          pulseState: modEv['pulse'] ? (modEv['pulse'][2] as string) : undefined,
+          respiratoryRateState: modEv['respiratoryRate']
+            ? (modEv['respiratoryRate'][2] as string)
+            : undefined,
+        },
+      });
+    })
+  );
+  console.log('Number of events updated for state', modifiedList.length);
 }
 
 main()

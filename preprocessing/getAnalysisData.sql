@@ -1,6 +1,6 @@
 .headers on
 .mode csv
-.output rawData.csv
+.output rawAnalysisData.csv
 select P.userId,
   M.id,
   M.illnessId,
@@ -53,13 +53,13 @@ select P.userId,
   M.painfulUrination,
 --  M.painfulUrinationState,
   M.patientState,
---  M.progress,
+  M.progress,
   M.pulse,
---  M.pulseState,
+  M.pulseState,
   M.rash,
 --  M.rashState,
   M.respiratoryRate,
---  M.respiratoryRateState,
+  M.respiratoryRateState,
   M.skinColor,
 --  M.skinColorState,
   M.skinTurgor,
@@ -96,8 +96,7 @@ where M.illnessId != 'noId'
     not U.email like 'janos.hajdurafis%'
     or U.email is null
   )
-  and (M.temperature is not null or M.temperatureAdjusted is not null)
-  -- and M.respiratoryRate is not null
-  -- and M.pulse is not null
-;
+  and temperature is not null
+  and pulse is not null
+  and respiratoryRate is not null;
 .output stdout

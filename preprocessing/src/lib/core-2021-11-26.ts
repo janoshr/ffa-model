@@ -299,138 +299,137 @@ export const getPulseState = (
   if (!pulse) {
     return {[questionState]: 'neutral'};
   }
-  // pulse decision tree version 2023-01-10
+  // pulse decision tree version 2021-11-26
   if (pulse && (temperature || temperature === null)) {
     if (temperature === null || temperature < 38.5) {
       if (
         (ageInMonths <= 3 && pulse <= 111) ||
         (ageInMonths <= 3 && pulse > 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse <= 110) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 170) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse <= 105) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 170) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse <= 100) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 165) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse <= 95) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 160) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse <= 90) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 155) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse <= 80) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 150) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse <= 65) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 145) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse <= 65) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 140) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse <= 60) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 135) ||
-        (ageInYears > 16 && pulse <= 55) ||
-        (ageInYears > 16 && pulse > 130)
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse <= 106) ||
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 167) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse <= 97) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 166) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse <= 90) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 152) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse <= 85) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 145) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse <= 78) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 135) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse <= 70) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 130) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse <= 61) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 128) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse <= 53) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 120) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse <= 48) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 110) ||
+        (ageInYears > 16 && pulse <= 45) ||
+        (ageInYears > 16 && pulse > 115)
       ) {
         return {[questionState]: 'danger'};
       } else if (
         (ageInMonths <= 3 && pulse > 111 && pulse <= 127) ||
         (ageInMonths <= 3 && pulse > 158 && pulse <= 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 110 && pulse <= 125) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 160 && pulse <= 170) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 105 && pulse <= 115) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 155 && pulse <= 170) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 100 && pulse <= 110) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 150 && pulse <= 165) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 95 && pulse <= 105) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 145 && pulse <= 160) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 90 && pulse <= 100) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 140 && pulse <= 155) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 80 && pulse <= 95) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 135 && pulse <= 150) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 65 && pulse <= 80) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 130 && pulse <= 145) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 65 && pulse <= 70) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 125 && pulse <= 140) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 60 && pulse <= 70) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 120 && pulse <= 135) ||
-        (ageInYears > 16 && pulse > 55 && pulse <= 65) ||
-        (ageInYears > 16 && pulse > 110 && pulse <= 130)
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 106 && pulse <= 121) ||
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 152 && pulse <= 167) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 97 && pulse <= 111) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 145 && pulse <= 160) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 90 && pulse <= 105) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 137 && pulse <= 152) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 85 && pulse <= 99) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 131 && pulse <= 145) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 78 && pulse <= 92) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 120 && pulse <= 135) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 70 && pulse <= 84) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 116 && pulse <= 130) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 61 && pulse <= 75) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 109 && pulse <= 128) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 53 && pulse <= 67) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 99 && pulse <= 120) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 48 && pulse <= 61) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 92 && pulse <= 110) ||
+        (ageInYears > 16 && pulse > 45 && pulse <= 58) ||
+        (ageInYears > 16 && pulse > 90 && pulse <= 115)
       ) {
         return {[questionState]: 'caution'};
       } else if (
         (ageInMonths <= 3 && pulse > 127 && pulse <= 158) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 125 && pulse <= 160) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 115 && pulse <= 155) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 110 && pulse <= 150) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 105 && pulse <= 145) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 100 && pulse <= 140) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 95 && pulse <= 135) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 80 && pulse <= 130) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 70 && pulse <= 125) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 70 && pulse <= 120) ||
-        (ageInYears > 16 && pulse > 65 && pulse <= 110)
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 121 && pulse <= 152) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 111 && pulse <= 145) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 105 && pulse <= 137) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 99 && pulse <= 131) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 92 && pulse <= 120) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 84 && pulse <= 116) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 75 && pulse <= 109) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 67 && pulse <= 99) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 61 && pulse <= 92) ||
+        (ageInYears > 16 && pulse > 58 && pulse <= 90)
       ) {
         return {[questionState]: 'good'};
       }
     } else if (temperature >= 38.5) {
-      // ! FEVER TEMPERATURE
       if (
         (ageInMonths <= 3 && pulse <= 128) ||
-        (ageInMonths <= 3 && pulse > 180) ||
+        (ageInMonths <= 3 && pulse > 173) ||
         (ageInMonths > 3 && ageInMonths <= 6 && pulse <= 122) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 180) ||
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 173) ||
         (ageInMonths > 6 && ageInMonths <= 12 && pulse <= 112) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 175) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 170) ||
         (ageInMonths > 12 && ageInMonths <= 18 && pulse <= 103) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 170) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 160) ||
         (ageInMonths > 18 && ageInYears <= 2 && pulse <= 98) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 165) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 150) ||
         (ageInYears > 2 && ageInYears <= 3 && pulse <= 90) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 160) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 150) ||
         (ageInYears > 3 && ageInYears <= 5 && pulse <= 80) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 155) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 150) ||
         (ageInYears > 5 && ageInYears <= 8 && pulse <= 70) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 155) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse <= 70) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 150) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse <= 70) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 145) ||
-        (ageInYears > 16 && pulse <= 65) ||
-        (ageInYears > 16 && pulse > 140)
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 140) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse <= 61) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 135) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse <= 55) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 130) ||
+        (ageInYears > 16 && pulse <= 52) ||
+        (ageInYears > 16 && pulse > 125)
       ) {
         return {[questionState]: 'danger'};
       } else if (
         (ageInMonths <= 3 && pulse > 128 && pulse <= 146) ||
-        (ageInMonths <= 3 && pulse > 170 && pulse <= 180) ||
+        (ageInMonths <= 3 && pulse > 158 && pulse <= 173) ||
         (ageInMonths > 3 && ageInMonths <= 6 && pulse > 122 && pulse <= 135) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 165 && pulse <= 180) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 112 && pulse <= 125) || // * my modification og: 120 -> 125
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 160 && pulse <= 175) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 103 && pulse <= 120) || // * my modification og: 121 -> 120
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 155 && pulse <= 170) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 98 && pulse <= 115) || // * my modification og: 114 -> 115
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 150 && pulse <= 165) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 90 && pulse <= 110) || // * my modification og: 106 -> 110
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 145 && pulse <= 160) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 80 && pulse <= 100) || // * my modification og: 97 -> 100
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 140 && pulse <= 155) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 70 && pulse <= 90) || // * my modification og: 86 -> 90
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 135 && pulse <= 155) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 70 && pulse <= 85) || // * my modification og: 77 -> 85
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 130 && pulse <= 150) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 70 && pulse <= 85) || // * og: 70
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 125 && pulse <= 145) ||
-        (ageInYears > 16 && pulse > 65 && pulse <= 80) || // * og: 67
-        (ageInYears > 16 && pulse > 125 && pulse <= 140)
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 155 && pulse <= 173) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 112 && pulse <= 120) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 145 && pulse <= 170) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 103 && pulse <= 121) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 140 && pulse <= 160) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 98 && pulse <= 114) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 131 && pulse <= 150) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 90 && pulse <= 106) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 125 && pulse <= 150) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 80 && pulse <= 97) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 120 && pulse <= 150) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 70 && pulse <= 86) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 115 && pulse <= 140) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 61 && pulse <= 77) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 99 && pulse <= 135) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 55 && pulse <= 70) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 95 && pulse <= 130) ||
+        (ageInYears > 16 && pulse > 52 && pulse <= 67) ||
+        (ageInYears > 16 && pulse > 90 && pulse <= 125)
       ) {
         return {[questionState]: 'caution'};
       } else if (
-        (ageInMonths <= 3 && pulse > 146 && pulse <= 170) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 135 && pulse <= 165) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 125 && pulse <= 160) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 120 && pulse <= 155) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 115 && pulse <= 150) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 110 && pulse <= 145) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 100 && pulse <= 140) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 90 && pulse <= 135) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 85 && pulse <= 130) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 85 && pulse <= 125) ||
-        (ageInYears > 16 && pulse > 80 && pulse <= 125)
+        (ageInMonths <= 3 && pulse > 146 && pulse <= 158) ||
+        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 135 && pulse <= 155) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 120 && pulse <= 145) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 121 && pulse <= 140) ||
+        (ageInMonths > 18 && ageInYears <= 2 && pulse > 114 && pulse <= 131) ||
+        (ageInYears > 2 && ageInYears <= 3 && pulse > 106 && pulse <= 125) ||
+        (ageInYears > 3 && ageInYears <= 5 && pulse > 97 && pulse <= 120) ||
+        (ageInYears > 5 && ageInYears <= 8 && pulse > 86 && pulse <= 115) ||
+        (ageInYears > 8 && ageInYears <= 12 && pulse > 77 && pulse <= 99) ||
+        (ageInYears > 12 && ageInYears <= 16 && pulse > 70 && pulse <= 95) ||
+        (ageInYears > 16 && pulse > 67 && pulse <= 90)
       ) {
         return {[questionState]: 'good'};
       }
@@ -472,15 +471,15 @@ export const getVentilationState = (
     questionStateValue = 'danger';
   } else if (temperature || temperature === null) {
     if (temperature === null || temperature < 38.5) {
-      // Breathing decision tree version 2022-12-26
+      // Breathing decision tree version 2021-11-27
       if (
         (ageInMonths <= 3 && answerValue > 33 && answerValue <= 51) ||
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 32 && answerValue <= 48) ||
         (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 29 && answerValue <= 46) ||
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 27 && answerValue <= 42) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 25 && answerValue <= 40) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 25 && answerValue <= 37) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 22 && answerValue <= 30) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 20 && answerValue <= 30) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 20 && answerValue <= 28) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue > 18 && answerValue <= 25) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue > 16 && answerValue <= 22) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 14 && answerValue <= 20) ||
@@ -497,15 +496,15 @@ export const getVentilationState = (
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 20 && answerValue <= 27) ||
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 42 && answerValue <= 49) ||
         (ageInMonths > 18 && ageInYears <= 2 && answerValue > 19 && answerValue <= 25) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 40 && answerValue <= 50) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 37 && answerValue <= 45) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 18 && answerValue <= 22) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 30 && answerValue <= 40) ||
         (ageInYears > 3 && ageInYears <= 5 && answerValue > 18 && answerValue <= 20) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 30 && answerValue <= 40) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 28 && answerValue <= 35) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue > 16 && answerValue <= 18) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 25 && answerValue <= 35) ||
+        (ageInYears > 5 && ageInYears <= 8 && answerValue > 25 && answerValue <= 30) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue > 14 && answerValue <= 16) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 22 && answerValue <= 30) ||
+        (ageInYears > 8 && ageInYears <= 12 && answerValue > 22 && answerValue <= 26) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 12 && answerValue <= 14) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 20 && answerValue <= 25) ||
         (ageInYears > 16 && answerValue > 10 && answerValue <= 13) ||
@@ -522,15 +521,15 @@ export const getVentilationState = (
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue <= 20) ||
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 49) ||
         (ageInMonths > 18 && ageInYears <= 2 && answerValue <= 19) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 50) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 45) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue <= 18) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 40) ||
         (ageInYears > 3 && ageInYears <= 5 && answerValue <= 18) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 40) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 35) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue <= 16) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 35) ||
+        (ageInYears > 5 && ageInYears <= 8 && answerValue > 30) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue <= 14) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 30) ||
+        (ageInYears > 8 && ageInYears <= 12 && answerValue > 26) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue <= 12) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 25) ||
         (ageInYears > 16 && answerValue <= 10) ||
@@ -539,15 +538,14 @@ export const getVentilationState = (
         questionStateValue = 'danger';
       }
     } else if (temperature >= 38.5) {
-      // ! FEVER TEMPERATURE
       if (
         (ageInMonths <= 3 && answerValue > 38 && answerValue <= 51) ||
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 37 && answerValue <= 50) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 33 && answerValue <= 50) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 31 && answerValue <= 45) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 29 && answerValue <= 45) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 33 && answerValue <= 46) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 31 && answerValue <= 42) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 29 && answerValue <= 40) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 23 && answerValue <= 35) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 23 && answerValue <= 33) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 23 && answerValue <= 30) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue > 20 && answerValue <= 30) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue > 18 && answerValue <= 25) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 16 && answerValue <= 25) ||
@@ -560,23 +558,23 @@ export const getVentilationState = (
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 26 && answerValue <= 37) ||
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 50 && answerValue <= 60) ||
         (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 25 && answerValue <= 33) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 50 && answerValue <= 60) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 46 && answerValue <= 56) ||
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 23 && answerValue <= 31) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 45 && answerValue <= 57) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 42 && answerValue <= 53) ||
         (ageInMonths > 18 && ageInYears <= 2 && answerValue > 22 && answerValue <= 29) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 45 && answerValue <= 55) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 40 && answerValue <= 50) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue > 21 && answerValue <= 23) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 35 && answerValue <= 50) ||
+        (ageInYears > 2 && ageInYears <= 3 && answerValue > 35 && answerValue <= 45) ||
         (ageInYears > 3 && ageInYears <= 5 && answerValue > 21 && answerValue <= 23) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 33 && answerValue <= 45) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 30 && answerValue <= 40) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue > 18 && answerValue <= 20) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 30 && answerValue <= 40) ||
+        (ageInYears > 5 && ageInYears <= 8 && answerValue > 30 && answerValue <= 35) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue > 16 && answerValue <= 18) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 25 && answerValue <= 35) ||
+        (ageInYears > 8 && ageInYears <= 12 && answerValue > 25 && answerValue <= 32) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue > 13 && answerValue <= 16) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 25 && answerValue <= 35) ||
+        (ageInYears > 12 && ageInYears <= 16 && answerValue > 25 && answerValue <= 30) ||
         (ageInYears > 16 && answerValue > 12 && answerValue <= 14) ||
-        (ageInYears > 16 && answerValue > 20 && answerValue <= 30)
+        (ageInYears > 16 && answerValue > 20 && answerValue <= 27)
       ) {
         questionStateValue = 'caution';
       } else if (
@@ -585,23 +583,23 @@ export const getVentilationState = (
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue <= 26) ||
         (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 60) ||
         (ageInMonths > 6 && ageInMonths <= 12 && answerValue <= 25) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 60) ||
+        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 56) ||
         (ageInMonths > 12 && ageInMonths <= 18 && answerValue <= 23) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 57) ||
+        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 53) ||
         (ageInMonths > 18 && ageInYears <= 2 && answerValue <= 22) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 55) ||
+        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 50) ||
         (ageInYears > 2 && ageInYears <= 3 && answerValue <= 21) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 50) ||
+        (ageInYears > 2 && ageInYears <= 3 && answerValue > 45) ||
         (ageInYears > 3 && ageInYears <= 5 && answerValue <= 21) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 45) ||
+        (ageInYears > 3 && ageInYears <= 5 && answerValue > 40) ||
         (ageInYears > 5 && ageInYears <= 8 && answerValue <= 18) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 40) ||
+        (ageInYears > 5 && ageInYears <= 8 && answerValue > 35) ||
         (ageInYears > 8 && ageInYears <= 12 && answerValue <= 16) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 35) ||
+        (ageInYears > 8 && ageInYears <= 12 && answerValue > 32) ||
         (ageInYears > 12 && ageInYears <= 16 && answerValue <= 13) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 35) ||
+        (ageInYears > 12 && ageInYears <= 16 && answerValue > 30) ||
         (ageInYears > 16 && answerValue <= 12) ||
-        (ageInYears > 16 && answerValue > 30)
+        (ageInYears > 16 && answerValue > 27)
       ) {
         questionStateValue = 'danger';
       }
