@@ -96,7 +96,8 @@ where M.illnessId != 'noId'
     not U.email like 'janos.hajdurafis%'
     or U.email is null
   )
-  and temperature is not null
-  and pulse is not null
-  and respiratoryRate is not null;
+  -- and temperature is not null
+  -- and pulse is not null
+  -- and respiratoryRate is not null
+;
 .output stdout
