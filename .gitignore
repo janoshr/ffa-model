@@ -5,3 +5,11 @@
 
 # archive
 archive
+
+# logs
+logs
+
+# generated files
+checkpoints
+out
+*.tflite
