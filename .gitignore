@@ -16,3 +16,6 @@ out
 
 # tuner
 tuner*
+
+# other
+.DS_Store
