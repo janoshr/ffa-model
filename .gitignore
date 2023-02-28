@@ -13,6 +13,8 @@ logs
 checkpoints
 out
 *.tflite
+model
+model.zip
 
 # tuner
 tuner*
