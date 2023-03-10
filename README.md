@@ -76,6 +76,35 @@ Upcoming:
 - Number of layers as a hyper parameter up to 5
 
 
+## 2023.02.25 Hyper parameter tuning
+
+- Dropout layer added with variable rate
+- Number of possible layers is increased to 5
 
 
+## 2023.02.27 Section models
+
+- Section model labels selected
+
+## 2023.02.28 Section model training
+
+- Section models trained with `RandomForestModel`
+- Section models are not using NN because of simplicity
+- Neural Network best model selected from initial training and retrained with the best hyperparams
+
+## 2023.03.06 Caregiver model added
+
+- Section model caregiver added to preprocessing and `RandomForestModel`
+- Accuracy metrics added for section models
+- 10-fold cross-validation added for section models
+  - Results confirm very high accuracy for most models
+
+## 2023.03.07 `RandomForestModel` tuning
+
+- Hyper parameter tuning added for `RandomForestModels`
+- Hyper params:
+  - Number of trees
+  - Max depth
+  - Max number of nodes
+- Best hyperparams selected and model saved
 
