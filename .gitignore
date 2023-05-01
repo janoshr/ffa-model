@@ -2,3 +2,22 @@
 .ipynb_checkpoints
 *.db
 *.csv
+
+# archive
+archive
+
+# logs
+logs
+
+# generated files
+checkpoints
+out
+*.tflite
+model
+model.zip
+
+# tuner
+tuner*
+
+# other
+.DS_Store

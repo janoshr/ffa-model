@@ -5,6 +5,7 @@ select P.userId,
   M.id,
   M.illnessId,
   M.patientId,
+  M.ageInMonths,
   M.antibiotics,
   M.antibioticsHowManyTimes,
 --  M.antibioticsHowManyTimesState,
@@ -52,7 +53,7 @@ select P.userId,
   M.painfulUrination,
 --  M.painfulUrinationState,
   M.patientState,
-  M.progress,
+--  M.progress,
   M.pulse,
 --  M.pulseState,
   M.rash,
@@ -95,7 +96,8 @@ where M.illnessId != 'noId'
     not U.email like 'janos.hajdurafis%'
     or U.email is null
   )
-  and temperature is not null
-  and pulse is not null
-  and respiratoryRate is not null;
+  and (M.temperature is not null or M.temperatureAdjusted is not null)
+  -- and M.respiratoryRate is not null
+  -- and M.pulse is not null
+;
 .output stdout

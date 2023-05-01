@@ -285,158 +285,181 @@ type State = 'neutral' | 'good' | 'danger' | 'caution';
 //   }
 // };
 
+enum AgeRange {
+  ZeroToThreeM = 'ZeroToThreeM',
+  ThreeMToSixM = 'ThreeMToSixM',
+  SixMToTwelveM = 'SixMToTwelveM',
+  TwelveMToEighteenM = 'TwelveMToEighteenM',
+  EighteenMToTwoY = 'EighteenMToTwoY',
+  TwoYToThreeY = 'TwoYToThreeY',
+  ThreeYToFiveY = 'ThreeYToFiveY',
+  FiveYToEightY = 'FiveYToEightY',
+  EightYToTwelveY = 'EightYToTwelveY',
+  TwelveYToSixteenY = 'TwelveYToSixteenY',
+  SixteenYUp = 'SixteenYUp',
+}
+
+const getAgeRange = (ageInMonths: number) => {
+  if (ageInMonths <= 3) {
+    return AgeRange.ZeroToThreeM;
+  } else if (ageInMonths <= 6) {
+    return AgeRange.ThreeMToSixM;
+  } else if (ageInMonths <= 12) {
+    return AgeRange.SixMToTwelveM;
+  } else if (ageInMonths <= 18) {
+    return AgeRange.TwelveMToEighteenM;
+  } else if (ageInMonths <= 2 * 12) {
+    return AgeRange.EighteenMToTwoY;
+  } else if (ageInMonths <= 3 * 12) {
+    return AgeRange.TwoYToThreeY;
+  } else if (ageInMonths <= 5 * 12) {
+    return AgeRange.ThreeYToFiveY;
+  } else if (ageInMonths <= 8 * 12) {
+    return AgeRange.FiveYToEightY;
+  } else if (ageInMonths <= 12 * 12) {
+    return AgeRange.EightYToTwelveY;
+  } else if (ageInMonths <= 16 * 12) {
+    return AgeRange.TwelveYToSixteenY;
+  } else if (ageInMonths > 16 * 12) {
+    return AgeRange.SixteenYUp;
+  } else {
+    throw Error(`Age range error: ageInMonths ${ageInMonths}; fell through matching`);
+  }
+};
+
+const pulseLimitsWithoutFever: { [key in AgeRange]: [number, number, number, number] } = {
+  [AgeRange.ZeroToThreeM]: [105, 127, 158, 173],
+  [AgeRange.ThreeMToSixM]: [100, 121, 152, 167],
+  [AgeRange.SixMToTwelveM]: [95, 111, 145, 160],
+  [AgeRange.TwelveMToEighteenM]: [90, 105, 137, 152],
+  [AgeRange.EighteenMToTwoY]: [85, 99, 131, 145],
+  [AgeRange.TwoYToThreeY]: [80, 92, 120, 135],
+  [AgeRange.ThreeYToFiveY]: [70, 84, 116, 130],
+  [AgeRange.FiveYToEightY]: [60, 75, 109, 128],
+  [AgeRange.EightYToTwelveY]: [55, 67, 99, 120],
+  [AgeRange.TwelveYToSixteenY]: [50, 61, 92, 110],
+  [AgeRange.SixteenYUp]: [50, 58, 90, 115],
+};
+
+const pulseLimitsWithFever: { [key in AgeRange]: [number, number, number, number] } = {
+  [AgeRange.ZeroToThreeM]: [120, 146, 158, 173],
+  [AgeRange.ThreeMToSixM]: [115, 139, 155, 173],
+  [AgeRange.SixMToTwelveM]: [107, 127, 145, 170],
+  [AgeRange.TwelveMToEighteenM]: [100, 121, 140, 160],
+  [AgeRange.EighteenMToTwoY]: [93, 114, 131, 150],
+  [AgeRange.TwoYToThreeY]: [85, 106, 125, 150],
+  [AgeRange.ThreeYToFiveY]: [77, 97, 120, 150],
+  [AgeRange.FiveYToEightY]: [70, 86, 115, 140],
+  [AgeRange.EightYToTwelveY]: [65, 77, 99, 135],
+  [AgeRange.TwelveYToSixteenY]: [60, 70, 95, 130],
+  [AgeRange.SixteenYUp]: [55, 67, 90, 125],
+};
+
+const getPulseStateNew = (pulse: number, ageInMonths: number, temperature: number | null) => {
+  const ageKey = getAgeRange(ageInMonths);
+  let relevantLimits: [number, number, number, number] | null = null;
+
+  if (temperature === null || temperature < 38.5) {
+    relevantLimits = pulseLimitsWithoutFever[ageKey];
+  } else if (temperature >= 38.5) {
+    relevantLimits = pulseLimitsWithFever[ageKey];
+  } else {
+    // sanity check
+    throw Error(
+      `Pulse Algorithm error: temperature does not match anything; Temperature: ${temperature}`
+    );
+  }
+
+  if (pulse <= relevantLimits[0] || pulse > relevantLimits[3]) {
+    return 'danger';
+  } else if (
+    (pulse > relevantLimits[0] && pulse <= relevantLimits[1]) ||
+    (pulse > relevantLimits[2] && pulse <= relevantLimits[3])
+  ) {
+    return 'caution';
+  } else if (pulse > relevantLimits[1] && pulse <= relevantLimits[2]) {
+    return 'good';
+  } else {
+    throw Error(
+      `Pulse Algorithm error: following values fell through state matching; Temperature: ${temperature}; Pulse: ${pulse}; AgeInMonths: ${ageInMonths}`
+    );
+  }
+};
+
+const rrateLimitWithoutFever: { [key in AgeRange]: [number, number, number, number] } = {
+  [AgeRange.ZeroToThreeM]: [25, 33, 51, 60],
+  [AgeRange.ThreeMToSixM]: [23, 32, 48, 57],
+  [AgeRange.SixMToTwelveM]: [22, 29, 46, 54],
+  [AgeRange.TwelveMToEighteenM]: [20, 27, 42, 49],
+  [AgeRange.EighteenMToTwoY]: [19, 25, 40, 50],
+  [AgeRange.TwoYToThreeY]: [18, 22, 30, 40],
+  [AgeRange.ThreeYToFiveY]: [18, 20, 30, 40],
+  [AgeRange.FiveYToEightY]: [16, 18, 25, 35],
+  [AgeRange.EightYToTwelveY]: [14, 16, 22, 30],
+  [AgeRange.TwelveYToSixteenY]: [12, 14, 20, 25],
+  [AgeRange.SixteenYUp]: [10, 13, 17, 25],
+};
+
+const rrateLimitWithFever: { [key in AgeRange]: [number, number, number, number] } = {
+  [AgeRange.ZeroToThreeM]: [29, 38, 51, 60],
+  [AgeRange.ThreeMToSixM]: [26, 37, 50, 60],
+  [AgeRange.SixMToTwelveM]: [25, 33, 50, 60],
+  [AgeRange.TwelveMToEighteenM]: [23, 31, 45, 57],
+  [AgeRange.EighteenMToTwoY]: [22, 29, 45, 55],
+  [AgeRange.TwoYToThreeY]: [21, 23, 35, 50],
+  [AgeRange.ThreeYToFiveY]: [21, 23, 33, 45],
+  [AgeRange.FiveYToEightY]: [18, 20, 30, 40],
+  [AgeRange.EightYToTwelveY]: [16, 18, 25, 35],
+  [AgeRange.TwelveYToSixteenY]: [13, 16, 25, 35],
+  [AgeRange.SixteenYUp]: [12, 14, 20, 30],
+};
+
+export const getRRateState = (rrate: number, ageInMonths: number, temperature: number | null) => {
+  const ageKey = getAgeRange(ageInMonths);
+  let relevantLimits: [number, number, number, number] | null = null;
+
+  if (temperature === null || temperature < 38.5) {
+    relevantLimits = rrateLimitWithoutFever[ageKey];
+  } else if (temperature >= 38.5) {
+    relevantLimits = rrateLimitWithFever[ageKey];
+  } else {
+    // sanity check
+    throw Error(
+      `RRate Algorithm error: temperature does not match anything; Temperature: ${temperature}`
+    );
+  }
+
+  if (rrate <= relevantLimits[0] || rrate > relevantLimits[3]) {
+    return 'danger';
+  } else if (
+    (rrate > relevantLimits[0] && rrate <= relevantLimits[1]) ||
+    (rrate > relevantLimits[2] && rrate <= relevantLimits[3])
+  ) {
+    return 'caution';
+  } else if (rrate > relevantLimits[1] && rrate <= relevantLimits[2]) {
+    return 'good';
+  } else {
+    throw Error(
+      `RRate Algorithm error: following values fell through state matching; Temperature: ${temperature}; RRate: ${rrate}; AgeInMonths: ${ageInMonths}`
+    );
+  }
+};
+
 export const getPulseState = (
   question: string,
   value: string,
   ageInMonths: number,
   ageInYears: number,
-  temperature: number | null,
-): {[key: string]: State} => {
+  temperature: number | null
+): { [key: string]: State } => {
   const questionState = question + 'State';
 
   const pulse: string | number = parseFloat(value) ?? value;
 
   if (!pulse) {
-    return {[questionState]: 'neutral'};
+    return { [questionState]: 'neutral' };
   }
-  // pulse decision tree version 2022-12-26
-  if (pulse && (temperature || temperature === null)) {
-    if (temperature === null || temperature < 38.5) {
-      if (
-        (ageInMonths <= 3 && pulse <= 111) ||
-        (ageInMonths <= 3 && pulse > 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse <= 110) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 170) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse <= 105) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 170) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse <= 100) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 165) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse <= 95) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 160) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse <= 90) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 155) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse <= 85) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 150) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse <= 65) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 145) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse <= 65) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 140) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse <= 60) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 135) ||
-        (ageInYears > 16 && pulse <= 55) ||
-        (ageInYears > 16 && pulse > 130)
-      ) {
-        return {[questionState]: 'danger'};
-      } else if (
-        (ageInMonths <= 3 && pulse > 111 && pulse <= 127) ||
-        (ageInMonths <= 3 && pulse > 158 && pulse <= 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 110 && pulse <= 125) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 160 && pulse <= 170) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 105 && pulse <= 115) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 155 && pulse <= 170) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 100 && pulse <= 110) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 150 && pulse <= 165) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 95 && pulse <= 105) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 145 && pulse <= 160) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 90 && pulse <= 100) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 140 && pulse <= 155) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 85 && pulse <= 95) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 135 && pulse <= 150) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 65 && pulse <= 80) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 130 && pulse <= 145) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 65 && pulse <= 70) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 125 && pulse <= 140) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 60 && pulse <= 70) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 120 && pulse <= 135) ||
-        (ageInYears > 16 && pulse > 55 && pulse <= 65) ||
-        (ageInYears > 16 && pulse > 110 && pulse <= 130)
-      ) {
-        return {[questionState]: 'caution'};
-      } else if (
-        (ageInMonths <= 3 && pulse > 127 && pulse <= 158) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 125 && pulse <= 160) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 115 && pulse <= 155) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 110 && pulse <= 150) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 105 && pulse <= 145) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 100 && pulse <= 140) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 95 && pulse <= 135) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 80 && pulse <= 130) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 70 && pulse <= 125) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 70 && pulse <= 120) ||
-        (ageInYears > 16 && pulse > 65 && pulse <= 110)
-      ) {
-        return {[questionState]: 'good'};
-      }
-    } else if (temperature >= 38.5) {
-      // ! FEVER TEMPERATURE
-      if (
-        (ageInMonths <= 3 && pulse <= 128) ||
-        (ageInMonths <= 3 && pulse > 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse <= 130) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 180) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse <= 120) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 180) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse <= 115) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 175) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse <= 110) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 170) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse <= 110) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 165) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse <= 105) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 160) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse <= 90) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 160) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse <= 85) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 155) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse <= 80) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 150) ||
-        (ageInYears > 16 && pulse <= 80) ||
-        (ageInYears > 16 && pulse > 145)
-      ) {
-        return {[questionState]: 'danger'};
-      } else if (
-        (ageInMonths <= 3 && pulse > 128 && pulse <= 146) ||
-        (ageInMonths <= 3 && pulse > 158 && pulse <= 173) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 130 && pulse <= 140) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 170 && pulse <= 180) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 120 && pulse <= 135) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 165 && pulse <= 180) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 115 && pulse <= 125) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 160 && pulse <= 175) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 110 && pulse <= 120) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 155 && pulse <= 170) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 110 && pulse <= 120) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 150 && pulse <= 165) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 105 && pulse <= 115) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 145 && pulse <= 160) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 90 && pulse <= 100) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 140 && pulse <= 160) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 85 && pulse <= 100) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 135 && pulse <= 155) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 80 && pulse <= 90) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 130 && pulse <= 150) ||
-        (ageInYears > 16 && pulse > 80 && pulse <= 90) ||
-        (ageInYears > 16 && pulse > 130 && pulse <= 145)
-      ) {
-        return {[questionState]: 'caution'};
-      } else if (
-        (ageInMonths <= 3 && pulse > 146 && pulse <= 158) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && pulse > 140 && pulse <= 170) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && pulse > 135 && pulse <= 165) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && pulse > 125 && pulse <= 160) ||
-        (ageInMonths > 18 && ageInYears <= 2 && pulse > 120 && pulse <= 155) ||
-        (ageInYears > 2 && ageInYears <= 3 && pulse > 120 && pulse <= 150) ||
-        (ageInYears > 3 && ageInYears <= 5 && pulse > 115 && pulse <= 145) ||
-        (ageInYears > 5 && ageInYears <= 8 && pulse > 100 && pulse <= 140) ||
-        (ageInYears > 8 && ageInYears <= 12 && pulse > 100 && pulse <= 135) ||
-        (ageInYears > 12 && ageInYears <= 16 && pulse > 90 && pulse <= 130) ||
-        (ageInYears > 16 && pulse > 90 && pulse <= 130)
-      ) {
-        return {[questionState]: 'good'};
-      }
-    }
-  }
-  return {[questionState]: 'neutral'};
+  return { [questionState]: getPulseStateNew(pulse, ageInMonths, temperature) };
 };
 
 export const getVentilationState = (
@@ -444,12 +467,9 @@ export const getVentilationState = (
   value: string,
   ageInMonths: number,
   ageInYears: number,
-  temperature: number | null,
-): {[key: string]: State} => {
-  let answerValue: number | string = value;
-  if (question === 'respiratoryRate') {
-    answerValue = parseFloat(value);
-  }
+  temperature: number | null
+): { [key: string]: State } => {
+  let answerValue: string = value;
 
   const questionState = question + 'State';
   let questionStateValue: State = 'neutral';
@@ -470,147 +490,13 @@ export const getVentilationState = (
     answerValue === 'dyspnea-05-5'
   ) {
     questionStateValue = 'danger';
-  } else if (temperature || temperature === null) {
-    if (temperature === null || temperature < 38.5) {
-      // Breathing decision tree version 2022-12-26
-      if (
-        (ageInMonths <= 3 && answerValue > 33 && answerValue <= 51) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 32 && answerValue <= 48) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 29 && answerValue <= 46) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 27 && answerValue <= 42) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 25 && answerValue <= 40) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 22 && answerValue <= 30) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 20 && answerValue <= 30) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 18 && answerValue <= 25) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 16 && answerValue <= 22) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 14 && answerValue <= 20) ||
-        (ageInYears > 16 && answerValue > 13 && answerValue <= 17)
-      ) {
-        questionStateValue = 'good';
-      } else if (
-        (ageInMonths <= 3 && answerValue > 25 && answerValue <= 33) ||
-        (ageInMonths <= 3 && answerValue > 51 && answerValue <= 60) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 23 && answerValue <= 32) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 48 && answerValue <= 57) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 22 && answerValue <= 29) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 46 && answerValue <= 54) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 20 && answerValue <= 27) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 42 && answerValue <= 49) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 19 && answerValue <= 25) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 40 && answerValue <= 50) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 18 && answerValue <= 22) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 30 && answerValue <= 40) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 18 && answerValue <= 20) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 30 && answerValue <= 40) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 16 && answerValue <= 18) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 25 && answerValue <= 35) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 14 && answerValue <= 16) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 22 && answerValue <= 30) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 12 && answerValue <= 14) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 20 && answerValue <= 25) ||
-        (ageInYears > 16 && answerValue > 10 && answerValue <= 13) ||
-        (ageInYears > 16 && answerValue > 17 && answerValue <= 25)
-      ) {
-        questionStateValue = 'caution';
-      } else if (
-        (ageInMonths <= 3 && answerValue <= 25) ||
-        (ageInMonths <= 3 && answerValue > 60) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue <= 23) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 57) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue <= 22) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 54) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue <= 20) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 49) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue <= 19) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 50) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue <= 18) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 40) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue <= 18) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 40) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue <= 16) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 35) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue <= 14) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 30) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue <= 12) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 25) ||
-        (ageInYears > 16 && answerValue <= 10) ||
-        (ageInYears > 16 && answerValue > 25)
-      ) {
-        questionStateValue = 'danger';
-      }
-    } else if (temperature >= 38.5) {
-      // ! FEVER TEMPERATURE
-      if (
-        (ageInMonths <= 3 && answerValue > 38 && answerValue <= 51) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 37 && answerValue <= 50) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 33 && answerValue <= 50) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 31 && answerValue <= 45) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 29 && answerValue <= 45) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 23 && answerValue <= 35) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 23 && answerValue <= 33) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 20 && answerValue <= 30) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 18 && answerValue <= 25) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 16 && answerValue <= 25) ||
-        (ageInYears > 16 && answerValue > 14 && answerValue <= 20)
-      ) {
-        questionStateValue = 'good';
-      } else if (
-        (ageInMonths <= 3 && answerValue > 29 && answerValue <= 38) ||
-        (ageInMonths <= 3 && answerValue > 51 && answerValue <= 60) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 26 && answerValue <= 37) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 50 && answerValue <= 60) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 25 && answerValue <= 33) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 50 && answerValue <= 60) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 23 && answerValue <= 31) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 45 && answerValue <= 57) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 22 && answerValue <= 29) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 45 && answerValue <= 55) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 21 && answerValue <= 23) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 35 && answerValue <= 50) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 21 && answerValue <= 23) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 33 && answerValue <= 45) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 18 && answerValue <= 20) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 30 && answerValue <= 40) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 16 && answerValue <= 18) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 25 && answerValue <= 35) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 13 && answerValue <= 16) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 25 && answerValue <= 35) ||
-        (ageInYears > 16 && answerValue > 12 && answerValue <= 14) ||
-        (ageInYears > 16 && answerValue > 20 && answerValue <= 30)
-      ) {
-        questionStateValue = 'caution';
-      } else if (
-        (ageInMonths <= 3 && answerValue <= 29) ||
-        (ageInMonths <= 3 && answerValue > 60) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue <= 26) ||
-        (ageInMonths > 3 && ageInMonths <= 6 && answerValue > 60) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue <= 25) ||
-        (ageInMonths > 6 && ageInMonths <= 12 && answerValue > 60) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue <= 23) ||
-        (ageInMonths > 12 && ageInMonths <= 18 && answerValue > 57) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue <= 22) ||
-        (ageInMonths > 18 && ageInYears <= 2 && answerValue > 55) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue <= 21) ||
-        (ageInYears > 2 && ageInYears <= 3 && answerValue > 50) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue <= 21) ||
-        (ageInYears > 3 && ageInYears <= 5 && answerValue > 45) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue <= 18) ||
-        (ageInYears > 5 && ageInYears <= 8 && answerValue > 40) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue <= 16) ||
-        (ageInYears > 8 && ageInYears <= 12 && answerValue > 35) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue <= 13) ||
-        (ageInYears > 12 && ageInYears <= 16 && answerValue > 35) ||
-        (ageInYears > 16 && answerValue <= 12) ||
-        (ageInYears > 16 && answerValue > 30)
-      ) {
-        questionStateValue = 'danger';
-      }
-    }
+  } else if ((temperature || temperature === null) && question === 'respiratoryRate') {
+    questionStateValue = getRRateState(parseFloat(value), ageInMonths, temperature);
   }
-  return {[questionState]: questionStateValue};
+  return { [questionState]: questionStateValue };
 };
 
-export const getSkinState = (question: string, value: string): {[key: string]: State} => {
+export const getSkinState = (question: string, value: string): { [key: string]: State } => {
   const questionState = question + 'State';
   let questionStateValue: State;
   if (value === null) {
@@ -628,10 +514,10 @@ export const getSkinState = (question: string, value: string): {[key: string]: S
   } else {
     questionStateValue = 'neutral';
   }
-  return {[questionState]: questionStateValue};
+  return { [questionState]: questionStateValue };
 };
 
-export const getHydrationState = (question: string, value: string): {[key: string]: State} => {
+export const getHydrationState = (question: string, value: string): { [key: string]: State } => {
   const questionState = question + 'State';
   let questionStateValue: State;
 
@@ -671,14 +557,14 @@ export const getHydrationState = (question: string, value: string): {[key: strin
   } else {
     questionStateValue = 'neutral';
   }
-  return {[questionState]: questionStateValue};
+  return { [questionState]: questionStateValue };
 };
 
 export const getGeneralState = (
   question: string,
   value: string | string[],
-  ageInYears: number,
-): {[key: string]: State | null} => {
+  ageInYears: number
+): { [key: string]: State | null } => {
   const questionState = question + 'State';
   let questionStateValue: State = 'neutral';
 
@@ -739,7 +625,9 @@ export const getGeneralState = (
     }
   }
 
-  const questionStateToSet: {[key: string]: State | null} = {[questionState]: questionStateValue};
+  const questionStateToSet: { [key: string]: State | null } = {
+    [questionState]: questionStateValue,
+  };
   if (question === 'vaccinationsWithIn14days' && value !== 'vaccinationsWithIn14days-02-Yes') {
     questionStateToSet.vaccinationsHowManyHoursAgoState = null;
   }
@@ -784,7 +672,9 @@ interface PatientEventStateExtract {
   wryNeckState: State | null | undefined;
 }
 
-export const getPatientState = (state: PatientEventStateExtract): {patientState: State} | null => {
+export const getPatientState = (
+  state: PatientEventStateExtract
+): { patientState: State } | null => {
   const {
     antibioticsHowManyTimesState,
     antibioticsState,
@@ -824,52 +714,52 @@ export const getPatientState = (state: PatientEventStateExtract): {patientState:
   } = state;
 
   const statesAll = [
-    {thermometerUsedState: thermometerUsedState},
-    {feverMeasurementLocationState: feverMeasurementLocationState},
-    {temperatureState: temperatureState},
-    {feverDurationState: feverDurationState},
-    {antipyreticMedicationState: antipyreticMedicationState},
+    { thermometerUsedState: thermometerUsedState },
+    { feverMeasurementLocationState: feverMeasurementLocationState },
+    { temperatureState: temperatureState },
+    { feverDurationState: feverDurationState },
+    { antipyreticMedicationState: antipyreticMedicationState },
     {
       antipyreticMedicationHowManyTimesState: antipyreticMedicationHowManyTimesState,
     },
-    {antibioticsState: antibioticsState},
-    {antibioticsHowManyTimesState: antibioticsHowManyTimesState},
-    {respiratoryRateState: respiratoryRateState},
-    {wheezingState: wheezingState},
-    {dyspneaState: dyspneaState},
-    {lastUrinationState: lastUrinationState},
-    {skinTurgorState: skinTurgorState},
-    {tearsWhenCryingState: tearsWhenCryingState},
-    {tongueState: tongueState},
-    {drinkingState: drinkingState},
-    {diarrheaState: diarrheaState},
-    {vomitState: vomitState},
-    {skinColorState: skinColorState},
-    {rashState: rashState},
-    {glassTestState: glassTestState},
-    {pulseState: pulseState},
-    {cryingState: cryingState},
-    {lastTimeEatingState: lastTimeEatingState},
-    {painfulUrinationState: painfulUrinationState},
-    {smellyUrineState: smellyUrineState},
-    {awarenessState: awarenessState},
-    {vaccinationsWithIn14daysState: vaccinationsWithIn14daysState},
-    {vaccinationsHowManyHoursAgoState: vaccinationsHowManyHoursAgoState},
-    {exoticTripInTheLast12MonthsState: exoticTripInTheLast12MonthsState},
-    {febrileSeizureState: febrileSeizureState},
-    {wryNeckState: wryNeckState},
-    {bulgingFontanelleMax18MOldState: bulgingFontanelleMax18MOldState},
-    {painState: painState},
+    { antibioticsState: antibioticsState },
+    { antibioticsHowManyTimesState: antibioticsHowManyTimesState },
+    { respiratoryRateState: respiratoryRateState },
+    { wheezingState: wheezingState },
+    { dyspneaState: dyspneaState },
+    { lastUrinationState: lastUrinationState },
+    { skinTurgorState: skinTurgorState },
+    { tearsWhenCryingState: tearsWhenCryingState },
+    { tongueState: tongueState },
+    { drinkingState: drinkingState },
+    { diarrheaState: diarrheaState },
+    { vomitState: vomitState },
+    { skinColorState: skinColorState },
+    { rashState: rashState },
+    { glassTestState: glassTestState },
+    { pulseState: pulseState },
+    { cryingState: cryingState },
+    { lastTimeEatingState: lastTimeEatingState },
+    { painfulUrinationState: painfulUrinationState },
+    { smellyUrineState: smellyUrineState },
+    { awarenessState: awarenessState },
+    { vaccinationsWithIn14daysState: vaccinationsWithIn14daysState },
+    { vaccinationsHowManyHoursAgoState: vaccinationsHowManyHoursAgoState },
+    { exoticTripInTheLast12MonthsState: exoticTripInTheLast12MonthsState },
+    { febrileSeizureState: febrileSeizureState },
+    { wryNeckState: wryNeckState },
+    { bulgingFontanelleMax18MOldState: bulgingFontanelleMax18MOldState },
+    { painState: painState },
   ];
 
   const statesHydration = [
-    {lastUrinationState: lastUrinationState},
-    {skinTurgorState: skinTurgorState},
-    {tearsWhenCryingState: tearsWhenCryingState},
-    {tongueState: tongueState},
-    {drinkingState: drinkingState},
-    {diarrheaState: diarrheaState},
-    {vomitState: vomitState},
+    { lastUrinationState: lastUrinationState },
+    { skinTurgorState: skinTurgorState },
+    { tearsWhenCryingState: tearsWhenCryingState },
+    { tongueState: tongueState },
+    { drinkingState: drinkingState },
+    { diarrheaState: diarrheaState },
+    { vomitState: vomitState },
   ];
 
   if (
@@ -1067,18 +957,18 @@ export const getPatientState = (state: PatientEventStateExtract): {patientState:
 };
 
 function numberOfCautions(
-  statesTocheck: {[key: string]: State | undefined | null}[],
-  statesToLeaveOut?: {[x: string]: State | undefined | null},
+  statesTocheck: { [key: string]: State | undefined | null }[],
+  statesToLeaveOut?: { [x: string]: State | undefined | null }
 ): number {
   let otherCautionStates = [];
-  const cautionStates = statesTocheck.filter(state => {
+  const cautionStates = statesTocheck.filter((state) => {
     const key = Object.keys(state)[0];
     return state[key] === 'caution';
   });
 
   if (statesToLeaveOut) {
     if (cautionStates.length > 0) {
-      cautionStates.forEach(cautionState => {
+      cautionStates.forEach((cautionState) => {
         const cautionStateKey = Object.keys(cautionState)[0];
 
         if (!statesToLeaveOut[cautionStateKey]) {
@@ -1101,19 +991,19 @@ function numberOfCautions(
 export const getEventState = (
   thermometerUsedState: State | 'cautioncantdo',
   feverMeasurementLocationState: State | 'cautioncantdo',
-  chronicDisease: unknown,
-): {eventState: 'neutral' | 'cautioncantdo'} | null => {
+  chronicDisease: unknown
+): { eventState: 'neutral' | 'cautioncantdo' } | null => {
   if (
     chronicDisease === 'chronicDisease-01-Yes' ||
     thermometerUsedState === 'cautioncantdo' ||
     feverMeasurementLocationState === 'cautioncantdo'
   ) {
-    return {eventState: 'cautioncantdo'};
+    return { eventState: 'cautioncantdo' };
   } else if (
     (thermometerUsedState === 'neutral' || thermometerUsedState === null) &&
     (feverMeasurementLocationState === 'neutral' || feverMeasurementLocationState === null)
   ) {
-    return {eventState: 'neutral'};
+    return { eventState: 'neutral' };
   }
   return null;
 };
@@ -1121,8 +1011,8 @@ export const getEventState = (
 export const evaluateCaretakerState = (
   parentFeelState: State,
   parentThinkState: State,
-  parentConfidentState: State,
-): {caretakerState: State | undefined} => {
+  parentConfidentState: State
+): { caretakerState: State | undefined } => {
   let caregiverState: State | undefined;
 
   if (
@@ -1150,13 +1040,13 @@ export const evaluateCaretakerState = (
   ) {
     caregiverState = 'neutral';
   }
-  return {caretakerState: caregiverState};
+  return { caretakerState: caregiverState };
 };
 
 export const getCaretakerState = (
   question: string,
-  value: string,
-): {[key: string]: State | undefined} => {
+  value: string
+): { [key: string]: State | undefined } => {
   const questionState = question + 'State';
   let questionStateValue: State | undefined;
 
@@ -1182,6 +1072,6 @@ export const getCaretakerState = (
   ) {
     questionStateValue = 'danger';
   }
-  
-  return {[questionState]: questionStateValue};
+
+  return { [questionState]: questionStateValue };
 };

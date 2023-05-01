@@ -32,6 +32,8 @@ model MeasurementEvent {
   illnessId String // ID
   patientId String
 
+  ageInMonths Float?
+
   deviceToken String?
 
   antibiotics                            String?
